@@ -1,0 +1,20 @@
+HL7 Manipulation
+--------------------------------------
+HL7 (Health Level 7) is widely used standard in healthcare.  You do not need to already be familiar with HL7 to complete this task.  Lots of good information on the HL7 standard is available here: http://www.corepointhealth.com/resource-center/hl7-resources
+
+High Level Goal: Create a C++ program to extract information from HL7 (version 2) reports
+
+Given a directory containing multiple files each containing a single HL7 message, create a system that can:
+
+1) Display the complete set of unique patient IDs from all files along with the corresponding patient names and message dates
+2) Allow the user to enter a patient ID and display basic patient information (name, address, etc).
+3) Allow the user to enter a HL7 message ID and display the raw message.
+
+The user interface can be console or GUI.
+
+This assignment is designed to assess your ability to quickly come up to speed on a standard format and build a program around it.  We are not as worried about the absolute correctness of your solution so much as your problem-solving process, your ability to clearly communicate any assumptions, and the design and quality of the software you create.
+
+Here are a few specific qualities we will be looking for:
+* performance, architectural choices, extensibility
+* use of modern C++ features, syntax and style
+* readability, organization, maintainability
