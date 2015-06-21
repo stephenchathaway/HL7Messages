@@ -45,6 +45,15 @@
       </column>
      </widget>
     </item>
+    <item>
+     <widget class="QTreeWidget" name="patientTree">
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
+       </property>
+      </column>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

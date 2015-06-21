@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->selectButton, SIGNAL(clicked(bool)), this, SLOT(onSelectButtonClicked(bool)));
 
     ui->messageTree->setColumnCount(2);
+    ui->patientTree->setColumnCount(2);
 }
 
 MainWindow::~MainWindow()
@@ -27,7 +28,7 @@ void MainWindow::onSelectButtonClicked(bool)
     int                 tCount = 0;
     QDir                tDir;
     //QString             tString = QFileDialog::getExistingDirectory(this, "Select Folder", "C:\"", QFileDialog::ShowDirsOnly);
-    QString tString = "D:\\google drive\\HL7\\HL7 Manipulation\\messages";
+    QString tString = "D:\\HL7Messages\\HL7 Manipulation\\messages";
 
     ui->pathText->setText(tString);
     ui->messageTree->clear();
@@ -38,6 +39,7 @@ void MainWindow::onSelectButtonClicked(bool)
     if (tDir.exists())
     {
         QList<QTreeWidgetItem*> tMessages;
+        QList<QTreeWidgetItem*> tPatientIDs;
         foreach (QFileInfo tLoopInfo, tDir.entryInfoList())
         {
             m_files << hl7File(tLoopInfo);
@@ -54,31 +56,26 @@ void MainWindow::onSelectButtonClicked(bool)
 
             for (int x = 0; x < tFile.messages().length(); x++)
             {
-                hl7Message tMessage = tFile.messages()[x];
+                tItem->addChild(tFile.messages()[x].getTreeWidgetItem());
 
-                QTreeWidgetItem *tItem1 = new QTreeWidgetItem();
-                tItem1->setText(0, tMessage.segmentID() + "(" + QString::number(tMessage.fields().length()) + ")");
-                tItem1->setText(1, tMessage.message());
-                tItem->addChild(tItem1);
-
-
-                for (int y = 0; y < tMessage.fields().length(); y++)
+                for (int y = 0; y < tFile.messages()[x].patientIDs().length(); y++)
                 {
-                    hl7Field tField = tMessage.fields()[y];
+                    QTreeWidgetItem *tPatient = new QTreeWidgetItem(ui->patientTree);
+                    tPatient->setText(0, tFile.messages()[x].patientIDs()[y].value());
 
-                    QTreeWidgetItem *tItem2 = new QTreeWidgetItem();
-                    tItem2->setText(0, tField.value());
-                    tItem2->setText(1, tField.name());
-                    tItem1->addChild(tItem2);
+                    tPatientIDs.append(tPatient);
                 }
             }
 
-            tMessages.append(tItem);
+            tMessages.append(tItem);                       
+
             tCount++;
         }
 
         ui->messageTree->insertTopLevelItems(0, tMessages);
-        //ui->messageTree->expandAll();
+        ui->patientTree->insertTopLevelItems(0, tPatientIDs);
+
+
     }
 }
 

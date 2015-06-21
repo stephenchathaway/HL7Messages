@@ -8,9 +8,8 @@ hl7Message::hl7Message()
     setFields();
 }
 
-hl7Message::hl7Message(hl7File *pParent, const QString &pMessage)
+hl7Message::hl7Message(const QString &pMessage)
 {
-    m_parent = pParent;
     setSegmentIDs();
     setFields();
     setMessage(pMessage);
@@ -198,9 +197,16 @@ void hl7Message::setFields()
                  << "Alternate Visit ID"
                  << "Visit Indicator"
                  << "Other Healthcare Provider";
+
+    m_PID_patientID_fields << "ID"
+                           << "check digit"
+                           << "code identifying the check digit scheme employed"
+                           << "assigning authority"
+                           << "identifier type code"
+                           << "assigning facility";
 }
 
-QString hl7Message::message() const
+QString hl7Message::message()
 {
     return m_rawMessage;
 }
@@ -230,7 +236,7 @@ void hl7Message::setFieldSeperator(hl7Field *pFieldSeperator)
     m_fieldSeperator = pFieldSeperator;
 }
 
-QVector<hl7Field> hl7Message::fields() const
+QVector<hl7Field> hl7Message::fields()
 {
     return m_fields;
 }
@@ -265,8 +271,9 @@ bool hl7Message::parseMessage()
     tString = tParsed.mid(0, 1);
     tParsed = tParsed.remove(0, 1);
 
-    m_fields << hl7Field("Field Seperator", tString);
-    setFieldSeperator(&m_fields.last());
+    hl7Field tField = hl7Field("Field Seperator", tString);
+    m_fields << tField;
+    setFieldSeperator(&tField);
 
     if (segmentID() == "MSH")
     {
@@ -284,6 +291,7 @@ bool hl7Message::parseMessage()
     else if (segmentID() == "PID")
     {
         parseFields(tParsed, m_PID_fields);
+        getPID();
     }
     else if (segmentID() == "OBR")
     {
@@ -301,6 +309,23 @@ bool hl7Message::parseMessage()
     return true;
 }
 
+void hl7Message::getPID()
+{
+    if (fields()[3].fields().length() == 0)
+    {
+        m_patientIDs << fields()[3];
+    }
+    else
+    {
+        m_patientIDs << fields()[3].fields()[0];
+    }
+ }
+
+QVector<hl7Field> hl7Message::patientIDs()
+{
+    return m_patientIDs;
+}
+
 void hl7Message::parseFields(QString pParsed, QVector<QString> pFields)
 {
     m_parsedSplit = pParsed.split(fieldSeperator()->value());
@@ -312,6 +337,18 @@ void hl7Message::parseFields(QString pParsed, QVector<QString> pFields)
         hl7Field tField = hl7Field(pFields[x], m_parsedSplit[x]);
         m_fields << tField;
     }
+}
+
+QTreeWidgetItem* hl7Message::getTreeWidgetItem()
+{
+    QTreeWidgetItem* tRetval = new QTreeWidgetItem();
+    tRetval->setText(0, segmentID() + "(" + QString::number(fields().length()) + ")");
+    tRetval->setText(1, message());
+
+    for (int x = 0; x < fields().length(); x++)
+        tRetval->addChild(fields()[x].getTreeItem());
+
+    return tRetval;
 }
 
 void hl7Message::parseMessageHeader(QString pParsed)
